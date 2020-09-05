@@ -53,13 +53,13 @@ function createDev (t: TFunction): LinkOption[] {
 
 function createLiveNetworks (t: TFunction): LinkOption[] {
   return [
-    // fixed, polkadot
     {
-      dnslink: 'polkadot',
-      info: 'polkadot',
-      text: t<string>('rpc.polkadot.parity', 'Polkadot (Live, hosted by Parity)', { ns: 'apps-config' }),
-      value: 'wss://rpc.polkadot.io'
+      dnslink: 'acuity',
+      info: 'acuity',
+      text: t<string>('acuity.social', 'Acuity (Live, hosted by acuity.social)', { ns: 'apps-config' }),
+      value: 'wss://acuity.social:9961'
     },
+    // fixed, polkadot
     {
       info: 'polkadot',
       text: t<string>('rpc.polkadot.w3f', 'Polkadot (Live, hosted by Web3 Foundation)', { ns: 'apps-config' }),

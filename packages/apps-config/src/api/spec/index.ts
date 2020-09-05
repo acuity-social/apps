@@ -22,6 +22,7 @@ import subsocialNode from './subsocial';
 export default {
   Crab: crab,
   acala,
+  'acuity': nodeTemplate,
   'centrifuge-chain': centrifugeChain,
   'cumulus-test-parachain': testPara,
   'darwinia-parachain': darwiniaParachain,
