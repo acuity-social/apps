@@ -1,10 +1,9 @@
 // Copyright 2017-2020 @polkadot/react-signer authors & contributors
-// This software may be modified and distributed under the terms
-// of the Apache-2.0 license. See the LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
 
 import { KeyringPair } from '@polkadot/keyring/types';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Modal, Password } from '@polkadot/react-components';
 import keyring from '@polkadot/ui-keyring';
@@ -21,9 +20,9 @@ interface Props {
   tabIndex?: number;
 }
 
-function getPair (address?: string | null): KeyringPair | null {
+function getPair (address: string): KeyringPair | null {
   try {
-    return keyring.getPair(address as string);
+    return keyring.getPair(address);
   } catch (error) {
     return null;
   }
@@ -31,12 +30,12 @@ function getPair (address?: string | null): KeyringPair | null {
 
 function Unlock ({ address, className, error, onChange, onEnter, tabIndex }: Props): React.ReactElement<Props> | null {
   const { t } = useTranslation();
-  const [pair, setPair] = useState<KeyringPair | null>(null);
   const [password, setPassword] = useState('');
 
-  useEffect((): void => {
-    setPair(getPair(address));
-  }, [address]);
+  const pair = useMemo(
+    () => getPair(address),
+    [address]
+  );
 
   useEffect((): void => {
     onChange(password);

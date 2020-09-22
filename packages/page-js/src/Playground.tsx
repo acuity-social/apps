@@ -1,6 +1,5 @@
 // Copyright 2017-2020 @polkadot/app-js authors & contributors
-// This software may be modified and distributed under the terms
-// of the Apache-2.0 license. See the LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
 
 import { ApiPromise } from '@polkadot/api';
 import { KeyringInstance } from '@polkadot/keyring/types';
@@ -132,7 +131,7 @@ function Playground ({ className = '' }: Props): React.ReactElement<Props> {
   const _stopJs = useCallback(
     (): void => {
       if (injectedRef.current) {
-        injectedRef.current.api.disconnect();
+        injectedRef.current.api.disconnect().catch(console.error);
         injectedRef.current = null;
       }
 

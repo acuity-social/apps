@@ -1,6 +1,5 @@
 // Copyright 2017-2020 @polkadot/app-storage authors & contributors
-// This software may be modified and distributed under the terms
-// of the Apache-2.0 license. See the LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
 
 import { QueryableStorageEntry } from '@polkadot/api/types';
 import { StorageEntryTypeLatest } from '@polkadot/types/interfaces';
@@ -18,6 +17,12 @@ import { isNull, isUndefined } from '@polkadot/util';
 
 import { useTranslation } from '../translate';
 
+interface TypeDefExt extends TypeDef {
+  withOptionActive?: boolean;
+}
+
+type ParamsType = { type: TypeDefExt }[];
+
 interface KeyState {
   defaultValues: RawParams | undefined | null;
   isIterable: boolean;
@@ -29,12 +34,6 @@ interface ValState {
   isValid: boolean;
   values: RawParams;
 }
-
-interface TypeDefExt extends TypeDef {
-  withOptionActive?: boolean;
-}
-
-type ParamsType = { type: TypeDefExt }[];
 
 function areParamsValid ({ creator: { meta: { type } } }: QueryableStorageEntry<'promise'>, values: RawParams): boolean {
   return values.reduce((isValid: boolean, value): boolean => {

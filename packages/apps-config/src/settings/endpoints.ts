@@ -1,6 +1,5 @@
 // Copyright 2017-2020 @polkadot/apps-config authors & contributors
-// This software may be modified and distributed under the terms
-// of the Apache-2.0 license. See the LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
 
 import { TFunction } from 'i18next';
 import { Option } from './types';
@@ -117,6 +116,11 @@ function createLiveNetworks (t: TFunction): LinkOption[] {
       value: 'wss://rpc.plasmnet.io/'
     },
     {
+      info: 'stafi',
+      text: t<string>('rpc.stafi', 'Stafi (Stafi Mainnet, hosted by Stafi Foundation)', { ns: 'apps-config' }),
+      value: 'wss://mainnet-rpc.stafi.io'
+    },
+    {
       info: 'subsocial',
       text: t<string>('rpc.subsocial', 'Subsocial (Subsocial Network, hosted by DappForce)', { ns: 'apps-config' }),
       value: 'wss://rpc.subsocial.network'
@@ -170,6 +174,12 @@ function createTestNetworks (t: TFunction): LinkOption[] {
       value: 'wss://rpc.parachain.plasmnet.io'
     },
     {
+      info: 'rococoRobonomics',
+      isChild: true,
+      text: t<string>('rpc.rococo.robonomics', 'Robonomics PC1 (Robonomics Testpara, hosted by Airalab)', { ns: 'apps-config' }),
+      value: 'wss://parachain-rpc.robonomics.network'
+    },
+    {
       info: 'rococoLaminar',
       isChild: true,
       text: t<string>('rpc.rococo.laminar', 'Turbulence PC1 (Laminar Testpara, hosted by Laminar)', { ns: 'apps-config' }),
@@ -190,6 +200,11 @@ function createTestNetworks (t: TFunction): LinkOption[] {
       info: 'edgeware',
       text: t<string>('rpc.beresheet', 'Beresheet (Edgeware Testnet, hosted by Commonwealth Labs)', { ns: 'apps-config' }),
       value: 'wss://beresheet1.edgewa.re'
+    },
+    {
+      info: 'crust',
+      text: t<string>('rpc.crust.network', 'Crust Maxwell CC2 (Crust Testnet, hosted by Crust Network)', { ns: 'apps-config' }),
+      value: 'wss://api.crust.network/'
     },
     {
       info: 'datahighway',

@@ -1,6 +1,5 @@
 // Copyright 2017-2020 @polkadot/react-components authors & contributors
-// This software may be modified and distributed under the terms
-// of the Apache-2.0 license. See the LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
 
 import BN from 'bn.js';
 import React from 'react';
@@ -102,7 +101,7 @@ export default React.memo(styled(CardSummary)`
   flex: 0 1 auto;
   flex-flow: row wrap;
   justify-content: flex-end;
-  padding: 0rem 1.5rem 0.5rem 1.5rem;
+  padding: 0 1.5rem;
 
   .ui--FormatBalance .balance-postfix {
     opacity: 1;

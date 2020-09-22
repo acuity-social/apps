@@ -1,6 +1,5 @@
 // Copyright 2017-2020 @polkadot/app-staking authors & contributors
-// This software may be modified and distributed under the terms
-// of the Apache-2.0 license. See the LICENSE file for details.
+// SPDX-License-Identifier: Apache-2.0
 
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { EraIndex } from '@polkadot/types/interfaces';
@@ -10,11 +9,9 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ApiPromise } from '@polkadot/api';
 import { AddressMini, Button, Modal, InputAddress, Static, TxButton } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
+import { useApi, useAccounts, useToggle } from '@polkadot/react-hooks';
 
 import { useTranslation } from '../translate';
-
-const MAX_BATCH_SIZE = 40;
 
 interface Props {
   className?: string;
@@ -28,10 +25,10 @@ interface SinglePayout {
   validatorId: string;
 }
 
-function createExtrinsic (api: ApiPromise, payout: PayoutValidator | PayoutValidator[]): SubmittableExtrinsic<'promise'> | null {
+function createExtrinsic (api: ApiPromise, payout: PayoutValidator | PayoutValidator[], maxPayouts: number): SubmittableExtrinsic<'promise'> | null {
   if (Array.isArray(payout)) {
     if (payout.length === 1) {
-      return createExtrinsic(api, payout[0]);
+      return createExtrinsic(api, payout[0], maxPayouts);
     }
 
     return api.tx.utility.batch(
@@ -44,7 +41,7 @@ function createExtrinsic (api: ApiPromise, payout: PayoutValidator | PayoutValid
           return payouts;
         }, [])
         .sort((a, b) => a.era.cmp(b.era))
-        .filter((_, index) => index < MAX_BATCH_SIZE)
+        .filter((_, index) => index < maxPayouts)
         .map(({ era, validatorId }) => api.tx.staking.payoutStakers(validatorId, era))
     );
   }
@@ -56,23 +53,47 @@ function createExtrinsic (api: ApiPromise, payout: PayoutValidator | PayoutValid
     : api.tx.utility.batch(
       eras
         .sort((a, b) => a.era.cmp(b.era))
-        .filter((_, index) => index < MAX_BATCH_SIZE)
+        .filter((_, index) => index < maxPayouts)
         .map(({ era }) => api.tx.staking.payoutStakers(validatorId, era))
     );
 }
 
 function PayButton ({ className, isAll, isDisabled, payout }: Props): React.ReactElement<Props> {
-  const { api } = useApi();
   const { t } = useTranslation();
+  const { api } = useApi();
+  const { allAccounts } = useAccounts();
   const [isVisible, togglePayout] = useToggle();
   const [accountId, setAccount] = useState<string | null>(null);
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic<'promise'> | null>(null);
+  const [maxPayouts, setMaxPayouts] = useState(0);
+
+  useEffect((): void => {
+    if (api.tx.utility && allAccounts.length && payout && (!Array.isArray(payout) || payout.length !== 0)) {
+      const { eras, validatorId } = Array.isArray(payout)
+        ? payout[0]
+        : payout;
+
+      api.tx.staking
+        .payoutStakers(validatorId, eras[0].era)
+        .paymentInfo(allAccounts[0])
+        .then((info) => setMaxPayouts(Math.floor(
+          // 65% of the block weight on a single extrinsic (64 for safety)
+          api.consts.system.maximumBlockWeight.muln(64).div(info.weight).toNumber() / 100
+        )))
+        .catch(console.error);
+    } else {
+      // at 64 payouts we can fit in 36 (as per tests)
+      setMaxPayouts(Math.floor(
+        36 * 64 / (api.consts.staking.maxNominatorRewardedPerValidator?.toNumber() || 64)
+      ));
+    }
+  }, [allAccounts, api, payout]);
 
   useEffect((): void => {
     api.tx.utility && payout && setExtrinsic(
-      () => createExtrinsic(api, payout)
+      () => createExtrinsic(api, payout, maxPayouts)
     );
-  }, [api, isDisabled, payout]);
+  }, [api, maxPayouts, payout]);
 
   const isPayoutEmpty = !payout || (Array.isArray(payout) && payout.length === 0);
 
