@@ -15,6 +15,7 @@ import chainRococoTrick from './chains/rococo-trick.svg';
 // defaults for the node type, assuming we don't have a specific chain, but rather match on the implementation
 // alphbetical
 import nodeAcala from './nodes/acala-circle.svg';
+import nodeAcuity from './nodes/acuity.svg';
 import nodeCentrifuge from './nodes/centrifuge.png';
 import nodeCrab from './nodes/crab.svg';
 import nodeCrust from './nodes/crust.svg';
@@ -102,6 +103,7 @@ const nodeLogos: Record<string, any> = [
 // alphabetical
 const namedLogos: Record<string, any> = {
   acala: nodeAcala,
+  acuity: nodeAcuity,
   alexander: nodePolkadot,
   centrifuge: nodeCentrifuge,
   crab: nodeCrab,
