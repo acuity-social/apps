@@ -54,6 +54,7 @@ import emptyLogo from './empty.svg';
 // overrides based on the actual matched chain name
 // alphabetical
 const chainLogos: Record<string, any> = [
+  ['Acuity', nodeAcuity],
   ['Dusty', chainDusty],
   ['Kusama', chainKusama], // new name after CC3
   ['Kusama CC1', chainKusama],
@@ -71,6 +72,7 @@ const chainLogos: Record<string, any> = [
 // overrides based on the actual software node type (all '-' converted to ' ')
 // alphabetical
 const nodeLogos: Record<string, any> = [
+  ['acuity.social', nodeAcuity],
   ['airalab-robonomics', nodeRobonomics],
   ['centrifuge chain', nodeCentrifuge],
   ['Centrifuge Chain Node', nodeCentrifuge],
