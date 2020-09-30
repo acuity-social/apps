@@ -6,6 +6,7 @@ const emptyColor = '#99999';
 
 // based on chain name
 // alphabetical
+const chainAcuity = '#014C64';
 const chainCrab = '#7C30DD';
 const chainCrust = '#ff8812';
 const chainKulupu = '#003366';
@@ -34,6 +35,7 @@ const nodeSubsocial = '#b9018c';
 // overrides based on the actual matched chain name
 // alphabetical
 const chainColors: Record<string, any> = [
+  ['Acuity', chainAcuity],
   ['acala mandala pc1', chainRoccoAcala],
   ['Crab', chainCrab],
   ['crust maxwell cc2', chainCrust],
@@ -61,6 +63,7 @@ const chainColors: Record<string, any> = [
 // overrides based on the actual software node type (all '-' converted to ' ')
 // alphabetical
 const nodeColors: Record<string, any> = [
+  ['acuity.social', chainAcuity],
   ['centrifuge chain', nodeCentrifuge],
   ['Centrifuge Chain Node', nodeCentrifuge],
   ['edgeware node', nodeEdgeware],
