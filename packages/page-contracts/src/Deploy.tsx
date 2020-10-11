@@ -1,7 +1,7 @@
 // Copyright 2017-2020 @polkadot/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { StringOrNull, VoidFn } from '@polkadot/react-components/types';
+import { StringOrNull } from '@polkadot/react-components/types';
 import { AccountId } from '@polkadot/types/interfaces';
 import { CodecArg } from '@polkadot/types/types';
 import { CodeStored } from './types';
@@ -21,17 +21,13 @@ import useAbi from './useAbi';
 import useWeight from './useWeight';
 import { ENDOWMENT } from './constants';
 
-type CodeOptions = { text: string; value: string }[];
 type ConstructOptions = { key: string; text: React.ReactNode; value: string }[];
 
 interface Props {
   basePath: string;
-  allCodes: CodeStored[];
   codeHash: string;
   constructorIndex?: number;
-  isOpen?: boolean;
-  onClose: VoidFn;
-  setCodeHash: React.Dispatch<string>;
+  onClose: () => void;
   setConstructorIndex: React.Dispatch<number>;
 }
 
@@ -39,7 +35,7 @@ function defaultContractName (name: string) {
   return `${name} (instance)`;
 }
 
-function Deploy ({ allCodes, basePath, codeHash, constructorIndex = 0, isOpen, onClose, setCodeHash, setConstructorIndex }: Props): React.ReactElement<Props> {
+function Deploy ({ basePath, codeHash, constructorIndex = 0, onClose, setConstructorIndex }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const { api } = useApi();
   const history = useHistory();
@@ -53,18 +49,11 @@ function Deploy ({ allCodes, basePath, codeHash, constructorIndex = 0, isOpen, o
   const [accountId, isAccountIdValid, setAccountId] = useFormField<StringOrNull>(null);
   const [endowment, isEndowmentValid, setEndowment] = useNonZeroBn(new BN(ENDOWMENT));
   const [name, isNameValid, setName] = useNonEmptyString(t(defaultContractName(code.json.name)));
-  const { abi, contractAbi, errorText, isAbiError, isAbiSupplied, isAbiValid, onChangeAbi, onRemoveAbi } = useAbi([code.json.abi || null, code.contractAbi || null], codeHash, true);
+  const { abi, contractAbi, errorText, isAbiError, isAbiSupplied, isAbiValid, onChangeAbi, onRemoveAbi } = useAbi([code.json.abi, code.contractAbi], codeHash, true);
 
   const isValid = useMemo(
-    (): boolean => isNameValid && isEndowmentValid && isWeightValid && isAccountIdValid,
+    () => isNameValid && isEndowmentValid && isWeightValid && isAccountIdValid,
     [isAccountIdValid, isEndowmentValid, isNameValid, isWeightValid]
-  );
-  const codeOptions = useMemo(
-    (): CodeOptions => allCodes.map(({ json: { codeHash, name } }): { text: string; value: string } => ({
-      text: `${name} (${codeHash})`,
-      value: codeHash
-    })),
-    [allCodes]
   );
 
   const constructOptions = useMemo(
@@ -73,7 +62,7 @@ function Deploy ({ allCodes, basePath, codeHash, constructorIndex = 0, isOpen, o
         return [];
       }
 
-      return contractAbi.abi.contract.constructors.map((message, index) => ({
+      return contractAbi.constructors.map((message, index) => ({
         key: `${index}`,
         text: (
           <MessageSignature
@@ -87,10 +76,10 @@ function Deploy ({ allCodes, basePath, codeHash, constructorIndex = 0, isOpen, o
     [contractAbi]
   );
 
-  const [params, setParams] = useState<unknown[]>(contractAbi && constructorIndex >= 0 ? contractAbi.abi.contract.constructors[constructorIndex].args : []);
+  const [params, setParams] = useState<unknown[]>(contractAbi && constructorIndex >= 0 ? contractAbi.constructors[constructorIndex].args : []);
 
   useEffect(
-    () => setParams(contractAbi ? contractAbi.abi.contract.constructors[constructorIndex].args : []),
+    () => setParams(contractAbi ? contractAbi.constructors[constructorIndex].args : []),
     [constructorIndex, contractAbi]
   );
 
@@ -138,11 +127,7 @@ function Deploy ({ allCodes, basePath, codeHash, constructorIndex = 0, isOpen, o
   );
 
   return (
-    <Modal
-      header={t('Add an existing code hash')}
-      onClose={onClose}
-      open={isOpen}
-    >
+    <Modal header={t('Add an existing code hash')}>
       <Modal.Content>
         <InputAddress
           help={t('Specify the user account to use for this deployment. Any fees will be deducted from this account.')}
@@ -152,59 +137,45 @@ function Deploy ({ allCodes, basePath, codeHash, constructorIndex = 0, isOpen, o
           type='account'
           value={accountId}
         />
-        <Dropdown
-          defaultValue={
-            codeOptions.length
-              ? codeOptions[codeOptions.length - 1].value
-              : undefined
-          }
-          help={t('The contract WASM previously deployed. Internally this is identified by the hash of the code, as either created or attached.')}
-          label={t('code for this contract')}
-          onChange={setCodeHash}
-          options={codeOptions}
-          value={codeHash}
-        />
         <InputName
           isContract
           isError={!isNameValid}
           onChange={setName}
           value={name || ''}
         />
-        {
-          isAbiSupplied
-            ? null
-            : (
-              <ABI
-                contractAbi={contractAbi}
-                errorText={errorText}
-                isError={isAbiError}
-                isSupplied={isAbiSupplied}
-                isValid={isAbiValid}
-                onChange={onChangeAbi}
-                onRemove={onRemoveAbi}
-                withLabel
-              />
-            )
+        {isAbiSupplied
+          ? null
+          : (
+            <ABI
+              contractAbi={contractAbi}
+              errorText={errorText}
+              isError={isAbiError}
+              isSupplied={isAbiSupplied}
+              isValid={isAbiValid}
+              onChange={onChangeAbi}
+              onRemove={onRemoveAbi}
+              withLabel
+            />
+          )
         }
-        {
-          contractAbi
-            ? (
-              <Dropdown
-                help={t<string>('The deployment constructor information for this contract, as provided by the ABI.')}
-                isDisabled={contractAbi.abi.contract.constructors.length <= 1}
-                label={t('deployment constructor')}
-                onChange={setConstructorIndex}
-                options={constructOptions}
-                value={`${constructorIndex}`}
-              />
-            )
-            : null
+        {contractAbi
+          ? (
+            <Dropdown
+              help={t<string>('The deployment constructor information for this contract, as provided by the ABI.')}
+              isDisabled={contractAbi.constructors.length <= 1}
+              label={t('deployment constructor')}
+              onChange={setConstructorIndex}
+              options={constructOptions}
+              value={`${constructorIndex}`}
+            />
+          )
+          : null
         }
         <Params
           onChange={setParams}
           params={
             contractAbi && constructorIndex >= 0
-              ? contractAbi.abi.contract.constructors[constructorIndex].args
+              ? contractAbi.constructors[constructorIndex].args
               : []
           }
         />
@@ -230,15 +201,7 @@ function Deploy ({ allCodes, basePath, codeHash, constructorIndex = 0, isOpen, o
           onClick={onClose}
           onSuccess={_onSuccess}
           params={_constructCall}
-          tx={
-            api.tx.contracts
-              ? (
-                !api.tx.contracts.instantiate
-                  ? 'contracts.create' // V2 (new)
-                  : 'contracts.instantiate' // V2 (old)
-              )
-              : 'contract.create' // V1
-          }
+          tx='contracts.instantiate'
           withSpinner
         />
       </Modal.Actions>

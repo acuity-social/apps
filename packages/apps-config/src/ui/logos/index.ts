@@ -20,8 +20,8 @@ import nodeCentrifuge from './nodes/centrifuge.png';
 import nodeCrab from './nodes/crab.svg';
 import nodeCrust from './nodes/crust.svg';
 import nodeDarwinia from './nodes/darwinia.png';
-import nodeDockMainnet from './nodes/dock-mainnet.svg';
-import nodeDockTestnet from './nodes/dock-testnet.svg';
+import nodeDockMainnet from './nodes/dock-mainnet.png';
+import nodeDockTestnet from './nodes/dock-testnet.png';
 import nodeEdgeware from './nodes/edgeware-circle.svg';
 import nodeEncointerNotee from './nodes/encointer-notee.svg';
 import nodeEncointerTeeproxy from './nodes/encointer-teeproxy.svg';
@@ -55,7 +55,7 @@ import externalSubscan from './external/subscan.svg';
 import emptyLogo from './empty.svg';
 
 // overrides based on the actual matched chain name
-// NOTE: this matchs up with RPC system.chain
+// NOTE: this matches up with RPC system.chain
 // alphabetical
 const chainLogos: Record<string, any> = [
   ['Acuity', nodeAcuity],

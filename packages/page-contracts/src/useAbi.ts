@@ -22,14 +22,9 @@ interface UseAbi {
   onRemoveAbi: () => void;
 }
 
-interface ContractABIOutdated {
-  deploy?: any;
-  messages?: any;
-}
-
-export default function useAbi (initialValue: [string | null, Abi | null] = [null, null], codeHash: StringOrNull = null, isRequired = false): UseAbi {
+export default function useAbi (initialValue: [string | null | undefined, Abi | null | undefined] = [null, null], codeHash: StringOrNull = null, isRequired = false): UseAbi {
   const { t } = useTranslation();
-  const [[abi, contractAbi, isAbiSupplied, isAbiValid], setAbi] = useState<[StringOrNull, Abi | null, boolean, boolean]>([initialValue[0], initialValue[1], !!initialValue[1], !isRequired || !!initialValue[1]]);
+  const [[abi, contractAbi, isAbiSupplied, isAbiValid], setAbi] = useState<[string | null | undefined, Abi | null | undefined, boolean, boolean]>([initialValue[0], initialValue[1], !!initialValue[1], !isRequired || !!initialValue[1]]);
   const [[isAbiError, errorText], setError] = useState<[boolean, string | null]>([false, null]);
 
   useEffect(
@@ -46,13 +41,14 @@ export default function useAbi (initialValue: [string | null, Abi | null] = [nul
       const json = u8aToString(u8a);
 
       try {
-        const abiOutdated = JSON.parse(json) as ContractABIOutdated;
+        const abi = JSON.parse(json) as Record<string, any>;
 
-        if (abiOutdated.deploy || abiOutdated.messages) {
+        if (!abi.metadataVersion) {
           throw new Error(t('You are using an ABI with an outdated format. Please generate a new one.'));
         }
 
-        setAbi([json, new Abi(registry, JSON.parse(json)), true, true]);
+        setAbi([json, new Abi(registry, abi), true, true]);
+
         codeHash && store.saveCode(
           codeHash,
           { abi: json }
@@ -81,6 +77,13 @@ export default function useAbi (initialValue: [string | null, Abi | null] = [nul
   );
 
   return {
-    abi, contractAbi, errorText, isAbiError, isAbiSupplied, isAbiValid, onChangeAbi, onRemoveAbi
+    abi: abi || null,
+    contractAbi: contractAbi || null,
+    errorText,
+    isAbiError,
+    isAbiSupplied,
+    isAbiValid,
+    onChangeAbi,
+    onRemoveAbi
   };
 }

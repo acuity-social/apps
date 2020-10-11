@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import styled from 'styled-components';
 import { Abi } from '@polkadot/api-contract';
 import { InputFile, Labelled } from '@polkadot/react-components';
 
@@ -14,8 +13,9 @@ interface Props {
   contractAbi?: Abi | null;
   errorText?: string | null;
   isContract?: boolean;
-  isError?: boolean;
   isDisabled?: boolean;
+  isError?: boolean;
+  isFull?: boolean;
   isRequired?: boolean;
   isValid?: boolean;
   isSupplied?: boolean;
@@ -25,24 +25,26 @@ interface Props {
   onRemoved?: () => void;
   onSelect?: () => void;
   onSelectConstructor?: (constructorIndex?: number) => void;
+  withConstructors?: boolean;
   withLabel?: boolean;
+  withMessages?: boolean;
 }
 
-function renderMessages ({ contractAbi, isDisabled, onRemove, onSelectConstructor, withLabel }: Props): React.ReactNode {
+function renderMessages ({ contractAbi, onRemove, onSelectConstructor, withConstructors = true, withLabel, withMessages = true }: Props): React.ReactNode {
   return (
     <Messages
       contractAbi={contractAbi}
       isLabelled={withLabel}
-      isRemovable={!isDisabled}
       onRemove={onRemove}
       onSelectConstructor={onSelectConstructor}
-      withConstructors
+      withConstructors={withConstructors}
+      withMessages={withMessages}
     />
   );
 }
 
 function ABI (props: Props): React.ReactElement<Props> {
-  const { className, contractAbi, errorText, isContract = false, isDisabled, isError, isSupplied, isValid, onChange, withLabel } = props;
+  const { className, contractAbi, errorText, isContract = false, isDisabled, isError, isFull, isSupplied, isValid, onChange, withLabel } = props;
   const { t } = useTranslation();
 
   const help = isContract
@@ -73,6 +75,7 @@ function ABI (props: Props): React.ReactElement<Props> {
               help={help}
               isDisabled={isDisabled}
               isError={isError}
+              isFull={isFull}
               label={label}
               onChange={onChange}
               placeholder={
@@ -97,8 +100,4 @@ function ABI (props: Props): React.ReactElement<Props> {
   );
 }
 
-export default React.memo(
-  styled(ABI)`
-    min-height: 4rem;
-  `
-);
+export default React.memo(ABI);
