@@ -59,6 +59,7 @@ function createLiveNetworks (t: TFunction): LinkOption[] {
       dnslink: 'acuity',
       info: 'acuity',
       text: t<string>('acuity.social', 'Acuity (Live, hosted by acuity.social)', { ns: 'apps-config' }),
+      textHoster: t<string>('rpc.hosted.by', 'hosted by {{host}}', { ns: 'apps-config', replace: { host: 'Acuity Social' } }),
       value: 'wss://acuity.social:9961'
     },
     // fixed, polkadot
