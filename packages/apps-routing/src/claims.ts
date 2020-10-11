@@ -17,7 +17,7 @@ export default function create (t: <T = string> (key: string, text: string, opti
     group: 'accounts',
     icon: 'star',
     name: 'claims',
-    text: t<string>('nav.claims', 'Claim Tokens', { ns: 'apps-routing' }),
+    text: t<string>('nav.claims', 'Claim ACU', { ns: 'apps-routing' }),
     useCounter
   };
 }
