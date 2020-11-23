@@ -9,11 +9,11 @@ import { AddressFlags, AddressIdentity, UseAccountInfo } from './types';
 import { useCallback, useEffect, useState } from 'react';
 import keyring from '@polkadot/ui-keyring';
 
-import useAccounts from './useAccounts';
-import useAddresses from './useAddresses';
-import useApi from './useApi';
-import useCall from './useCall';
-import useToggle from './useToggle';
+import { useAccounts } from './useAccounts';
+import { useAddresses } from './useAddresses';
+import { useApi } from './useApi';
+import { useCall } from './useCall';
+import { useToggle } from './useToggle';
 
 const IS_NONE = {
   isCouncil: false,
@@ -32,7 +32,7 @@ const IS_NONE = {
   isTechCommittee: false
 };
 
-export default function useAccountInfo (value: string | null, isContract = false): UseAccountInfo {
+export function useAccountInfo (value: string | null, isContract = false): UseAccountInfo {
   const { api } = useApi();
   const { isAccount } = useAccounts();
   const { isAddress } = useAddresses();
@@ -103,26 +103,30 @@ export default function useAccountInfo (value: string | null, isContract = false
 
   useEffect((): void => {
     if (value) {
-      const accountOrAddress = keyring.getAccount(value) || keyring.getAddress(value);
-      const isOwned = isAccount(value);
-      const isInContacts = isAddress(value);
+      try {
+        const accountOrAddress = keyring.getAccount(value) || keyring.getAddress(value);
+        const isOwned = isAccount(value);
+        const isInContacts = isAddress(value);
 
-      setGenesisHash(accountOrAddress?.meta.genesisHash || null);
-      setFlags((flags): AddressFlags => ({
-        ...flags,
-        isDevelopment: accountOrAddress?.meta.isTesting || false,
-        isEditable: !!(!identity?.display && (isInContacts || accountOrAddress?.meta.isMultisig || (accountOrAddress && !(accountOrAddress.meta.isInjected || accountOrAddress.meta.isHardware)))) || false,
-        isExternal: !!accountOrAddress?.meta.isExternal || false,
-        isHardware: !!accountOrAddress?.meta.isHardware || false,
-        isInContacts,
-        isInjected: !!accountOrAddress?.meta.isInjected || false,
-        isMultisig: !!accountOrAddress?.meta.isMultisig || false,
-        isOwned,
-        isProxied: !!accountOrAddress?.meta.isProxied || false
-      }));
-      setMeta(accountOrAddress?.meta);
-      setName(accountOrAddress?.meta.name || '');
-      setSortedTags(accountOrAddress?.meta.tags ? (accountOrAddress.meta.tags as string[]).sort() : []);
+        setGenesisHash(accountOrAddress?.meta.genesisHash || null);
+        setFlags((flags): AddressFlags => ({
+          ...flags,
+          isDevelopment: accountOrAddress?.meta.isTesting || false,
+          isEditable: !!(!identity?.display && (isInContacts || accountOrAddress?.meta.isMultisig || (accountOrAddress && !(accountOrAddress.meta.isInjected || accountOrAddress.meta.isHardware)))) || false,
+          isExternal: !!accountOrAddress?.meta.isExternal || false,
+          isHardware: !!accountOrAddress?.meta.isHardware || false,
+          isInContacts,
+          isInjected: !!accountOrAddress?.meta.isInjected || false,
+          isMultisig: !!accountOrAddress?.meta.isMultisig || false,
+          isOwned,
+          isProxied: !!accountOrAddress?.meta.isProxied || false
+        }));
+        setMeta(accountOrAddress?.meta);
+        setName(accountOrAddress?.meta.name || '');
+        setSortedTags(accountOrAddress?.meta.tags ? (accountOrAddress.meta.tags as string[]).sort() : []);
+      } catch (error) {
+        // ignore
+      }
     }
   }, [identity, isAccount, isAddress, value]);
 

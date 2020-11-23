@@ -1,14 +1,16 @@
 // Copyright 2017-2020 @polkadot/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { Codec } from '@polkadot/types/types';
 import { CodeStored } from '../types';
 
 import React, { useCallback } from 'react';
-import { Button, Card, Forget } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
+import styled from 'styled-components';
+import { Button, Card, CopyButton, Forget } from '@polkadot/react-components';
+import { useApi, useCall, useToggle } from '@polkadot/react-hooks';
+import { Option } from '@polkadot/types';
 
-import { ABI, CodeRow } from '../shared';
-import RemoveABI from '../RemoveABI';
+import { CodeRow, Messages } from '../shared';
 import store from '../store';
 import useAbi from '../useAbi';
 import { useTranslation } from '../translate';
@@ -21,9 +23,10 @@ interface Props {
 
 function Code ({ className, code, onShowDeploy }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
+  const { api } = useApi();
+  const optCode = useCall<Option<Codec>>(api.query.contracts.codeStorage, [code.json.codeHash]);
   const [isForgetOpen, toggleIsForgetOpen] = useToggle();
-  const [isRemoveABIOpen, toggleIsRemoveABIOpen] = useToggle();
-  const { contractAbi, isAbiError, isAbiSupplied, isAbiValid, onChangeAbi, onRemoveAbi } = useAbi([code.json.abi, code.contractAbi], code.json.codeHash, true);
+  const { contractAbi } = useAbi([code.json.abi, code.contractAbi], code.json.codeHash, true);
 
   const _onShowDeploy = useCallback(
     () => onShowDeploy(code.json.codeHash, 0),
@@ -74,28 +77,23 @@ function Code ({ className, code, onShowDeploy }: Props): React.ReactElement<Pro
               </CodeRow>
             </Forget>
           )}
-          {isRemoveABIOpen && (
-            <RemoveABI
-              code={code}
-              key='modal-remove-abi'
-              onClose={toggleIsRemoveABIOpen}
-              onRemove={onRemoveAbi}
-            />
-          )}
         </Card>
       </td>
       <td className='all top'>
-        <ABI
+        <Messages
           contractAbi={contractAbi}
-          isError={isAbiError}
-          isFull
-          isSupplied={isAbiSupplied}
-          isValid={isAbiValid}
-          onChange={onChangeAbi}
-          onRemove={toggleIsRemoveABIOpen}
           onSelectConstructor={_onDeployConstructor}
-          withMessages={false}
+          withConstructors
         />
+      </td>
+      <td className='together codeHash'>
+        <div>{`${code.json.codeHash.substr(0, 8)}…${code.json.codeHash.slice(-6)}`}</div>
+        <CopyButton value={code.json.codeHash} />
+      </td>
+      <td className='start together'>
+        {optCode && (
+          optCode.isSome ? t<string>('Available') : t<string>('Not on-chain')
+        )}
       </td>
       <td className='button'>
         <Button
@@ -114,4 +112,15 @@ function Code ({ className, code, onShowDeploy }: Props): React.ReactElement<Pro
   );
 }
 
-export default React.memo(Code);
+export default React.memo(styled(Code)`
+  .codeHash {
+    div {
+      display: inline;
+
+      &:first-child {
+        font-family: monospace;
+        margin-right: 0.5rem;
+      }
+    }
+  }
+`);

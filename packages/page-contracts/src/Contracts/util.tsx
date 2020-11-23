@@ -6,7 +6,7 @@ import { StringOrNull } from '@polkadot/react-components/types';
 
 import React from 'react';
 import { ApiPromise } from '@polkadot/api';
-import { PromiseContract as Contract } from '@polkadot/api-contract';
+import { ContractPromise as Contract } from '@polkadot/api-contract';
 import { getContractAbi } from '@polkadot/react-components/util';
 
 import MessageSignature from '../shared/MessageSignature';
@@ -37,13 +37,13 @@ export function getContractForAddress (api: ApiPromise, address: StringOrNull): 
 
 export function getCallMessageOptions (callContract: Contract | null): any[] {
   return callContract
-    ? callContract.abi.messages.map((message, index): { key: string; text: React.ReactNode; value: string } => {
+    ? callContract.abi.messages.map((message, index): { key: string; text: React.ReactNode; value: number } => {
       return {
         key: message.identifier,
         text: (
           <MessageSignature message={message} />
         ),
-        value: `${index}`
+        value: index
       };
     })
     : [];

@@ -3,14 +3,15 @@
 
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ContractCallOutcome } from '@polkadot/api-contract/types';
-import { StringOrNull } from '@polkadot/react-components/types';
+import { CallResult } from './types';
 
 import BN from 'bn.js';
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Button, Dropdown, IconLink, InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
-import { PromiseContract as ApiContract } from '@polkadot/api-contract';
-import { useAccountId, useFormField } from '@polkadot/react-hooks';
+import { Button, Dropdown, Expander, InputAddress, InputBalance, Modal, Toggle, TxButton } from '@polkadot/react-components';
+import { ContractPromise } from '@polkadot/api-contract';
+import { useAccountId, useDebounce, useFormField, useToggle } from '@polkadot/react-hooks';
+import { Available } from '@polkadot/react-query';
 import { BN_ZERO } from '@polkadot/util';
 
 import { InputMegaGas, Params } from '../shared';
@@ -20,79 +21,92 @@ import { getCallMessageOptions } from './util';
 import useWeight from '../useWeight';
 
 interface Props {
-  callContract: ApiContract;
-  callMessageIndex: number;
   className?: string;
-  onChangeCallContractAddress: (callContractAddress: StringOrNull) => void;
-  onChangeCallMessageIndex: (callMessageIndex: number) => void;
+  contract: ContractPromise;
+  messageIndex: number;
+  onCallResult?: (messageIndex: number, result?: ContractCallOutcome | void) => void;
+  onChangeMessage: (messageIndex: number) => void;
   onClose: () => void;
 }
 
-function Call ({ callContract, callMessageIndex, className = '', onChangeCallContractAddress, onChangeCallMessageIndex, onClose }: Props): React.ReactElement<Props> | null {
+const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).subn(1);
+
+function Call ({ className = '', contract, messageIndex, onCallResult, onChangeMessage, onClose }: Props): React.ReactElement<Props> | null {
   const { t } = useTranslation();
-  const callMessage = callContract.abi.messages[callMessageIndex];
+  const message = contract.abi.messages[messageIndex];
   const [accountId, setAccountId] = useAccountId();
-  const [endowment, isEndowmentValid, setEndowment] = useFormField<BN>(BN_ZERO);
-  const [outcomes, setOutcomes] = useState<ContractCallOutcome[]>([]);
+  const [estimatedWeight, setEstimatedWeight] = useState<BN | null>(null);
+  const [value, isValueValid, setEndowment] = useFormField<BN>(BN_ZERO);
+  const [outcomes, setOutcomes] = useState<CallResult[]>([]);
   const [execTx, setExecTx] = useState<SubmittableExtrinsic<'promise'> | null>(null);
   const [params, setParams] = useState<any[]>([]);
-  const useWeightHook = useWeight();
-  const { isValid: isWeightValid, weight } = useWeightHook;
+  const [isViaCall, toggleViaCall] = useToggle();
+  const weight = useWeight();
+  const dbValue = useDebounce(value);
+  const dbParams = useDebounce(params);
 
   useEffect((): void => {
+    setEstimatedWeight(null);
     setParams([]);
-  }, [callContract, callMessageIndex]);
+  }, [contract, messageIndex]);
 
   useEffect((): void => {
-    endowment && callMessage.isMutating && setExecTx((): SubmittableExtrinsic<'promise'> | null => {
+    value && message.isMutating && setExecTx((): SubmittableExtrinsic<'promise'> | null => {
       try {
-        return callContract.exec(callMessage, callMessage.isPayable ? endowment : 0, weight, ...params);
+        return contract.exec(message, { gasLimit: weight.weight, value: message.isPayable ? value : 0 }, ...params);
       } catch (error) {
         return null;
       }
     });
-  }, [accountId, callContract, callMessage, endowment, weight, params]);
+  }, [accountId, contract, message, value, weight, params]);
 
-  const _onChangeCallMessageIndexString = useCallback(
-    (callMessageIndexString: string): void => {
-      onChangeCallMessageIndex && onChangeCallMessageIndex(
-        parseInt(callMessageIndexString, 10) || 0
-      );
-    },
-    [onChangeCallMessageIndex]
-  );
+  useEffect((): void => {
+    if (!accountId || !message || !dbParams || !dbValue) return;
+
+    contract
+      .read(message, { gasLimit: -1, value: message.isPayable ? dbValue : 0 }, ...dbParams)
+      .send(accountId)
+      .then(({ gasConsumed, result }) => setEstimatedWeight(
+        result.isOk
+          ? gasConsumed
+          : null
+      ))
+      .catch(() => setEstimatedWeight(null));
+  }, [accountId, contract, message, dbParams, dbValue]);
 
   const _onSubmitRpc = useCallback(
     (): void => {
-      if (!accountId || !callMessage || !endowment || !weight) return;
+      if (!accountId || !message || !value || !weight) return;
 
-      callContract
-        .read(callMessage, 0, weight, ...params)
-        // when we make calls to mutables, we want the endowment & weight
-        // .read(callMessage, endowment, weight, ...params)
+      contract
+        .read(message, { gasLimit: weight.isEmpty ? -1 : weight.weight, value: message.isPayable ? value : 0 }, ...params)
         .send(accountId)
-        .then((outcome: ContractCallOutcome) => setOutcomes([outcome, ...outcomes]))
-        .catch(console.error);
+        .then((result): void => {
+          setOutcomes([{
+            ...result,
+            from: accountId,
+            message,
+            params,
+            when: new Date()
+          }, ...outcomes]);
+          onCallResult && onCallResult(messageIndex, result);
+        })
+        .catch((error): void => {
+          console.error(error);
+          onCallResult && onCallResult(messageIndex);
+        });
     },
-    [accountId, callContract, callMessage, endowment, weight, outcomes, params]
-  );
-
-  const _onClearOutcomes = useCallback(
-    () => setOutcomes([]),
-    []
+    [accountId, contract, message, messageIndex, onCallResult, outcomes, params, value, weight]
   );
 
   const _onClearOutcome = useCallback(
-    (outcomeIndex: number) => () => setOutcomes(outcomes.slice(0, outcomeIndex).concat(outcomes.slice(outcomeIndex + 1))),
+    (outcomeIndex: number) =>
+      () => setOutcomes([...outcomes.filter((_, index) => index !== outcomeIndex)]),
     [outcomes]
   );
 
-  const isValid = useMemo(
-    () => !!(accountId && isWeightValid && isEndowmentValid),
-    [accountId, isEndowmentValid, isWeightValid]
-  );
-
-  const isViaRpc = callContract.hasRpcContractsCall && !callMessage.isMutating;
+  const isValid = !!(accountId && weight.isValid && isValueValid);
+  const isViaRpc = contract.hasRpcContractsCall && (isViaCall || !message.isMutating);
 
   return (
     <Modal
@@ -102,77 +116,86 @@ function Call ({ callContract, callMessageIndex, className = '', onChangeCallCon
     >
       <Modal.Content>
         <InputAddress
+          help={t<string>('A deployed contract that has either been deployed or attached. The address and ABI are used to construct the parameters.')}
+          isDisabled
+          label={t<string>('contract to use')}
+          type='contract'
+          value={contract.address}
+        />
+        <InputAddress
           defaultValue={accountId}
           help={t<string>('Specify the user account to use for this contract call. And fees will be deducted from this account.')}
           label={t<string>('call from account')}
+          labelExtra={
+            <Available
+              label={t<string>('transferrable')}
+              params={accountId}
+            />
+          }
           onChange={setAccountId}
           type='account'
           value={accountId}
         />
-        <InputAddress
-          help={t<string>('A deployed contract that has either been deployed or attached. The address and ABI are used to construct the parameters.')}
-          label={t<string>('contract to use')}
-          onChange={onChangeCallContractAddress}
-          type='contract'
-          value={callContract.address.toString()}
-        />
-        {callMessageIndex !== null && (
+        {messageIndex !== null && (
           <>
             <Dropdown
-              defaultValue={`${callMessageIndex}`}
+              defaultValue={messageIndex}
               help={t<string>('The message to send to this contract. Parameters are adjusted based on the ABI provided.')}
-              isError={callMessage === null}
+              isError={message === null}
               label={t<string>('message to send')}
-              onChange={_onChangeCallMessageIndexString}
-              options={getCallMessageOptions(callContract)}
-              value={`${callMessageIndex}`}
+              onChange={onChangeMessage}
+              options={getCallMessageOptions(contract)}
+              value={messageIndex}
             />
             <Params
               onChange={setParams}
               params={
-                callMessage
-                  ? callMessage.args
+                message
+                  ? message.args
                   : undefined
               }
+              registry={contract.abi.registry}
             />
           </>
         )}
-        {!isViaRpc && callMessage.isPayable && (
+        {message.isPayable && (
           <InputBalance
             help={t<string>('The allotted value for this contract, i.e. the amount transferred to the contract as part of this call.')}
-            isError={!isEndowmentValid}
+            isError={!isValueValid}
             isZeroable
             label={t<string>('value')}
             onChange={setEndowment}
-            value={endowment}
+            value={value}
           />
         )}
         <InputMegaGas
+          estimatedWeight={message.isMutating ? estimatedWeight : MAX_CALL_WEIGHT}
           help={t<string>('The maximum amount of gas to use for this contract call. If the call requires more, it will fail.')}
-          label={t<string>('maximum gas allowed')}
-          {...useWeightHook}
+          isCall={!message.isMutating}
+          weight={weight}
         />
+        {message.isMutating && (
+          <Toggle
+            className='rpc-toggle'
+            label={t<string>('read contract only, no execution')}
+            onChange={toggleViaCall}
+            value={isViaCall}
+          />
+        )}
         {outcomes.length > 0 && (
-          <div>
-            <h3>
-              {t<string>('Call results')}
-              <IconLink
-                className='clear-all'
-                icon='times'
-                label={t<string>('Clear all')}
-                onClick={_onClearOutcomes}
+          <Expander
+            className='outcomes'
+            isOpen
+            summary={t<string>('Call results')}
+          >
+            {outcomes.map((outcome, index): React.ReactNode => (
+              <Outcome
+                key={`outcome-${index}`}
+                onClear={_onClearOutcome(index)}
+                outcome={outcome}
               />
-            </h3>
-            <div>
-              {outcomes.map((outcome, index): React.ReactNode => (
-                <Outcome
-                  key={`outcome-${index}`}
-                  onClear={_onClearOutcome(index)}
-                  outcome={outcome}
-                />
-              ))}
-            </div>
-          </div>
+            ))}
+          </Expander>
         )}
       </Modal.Content>
       <Modal.Actions onCancel={onClose}>
@@ -190,9 +213,9 @@ function Call ({ callContract, callMessageIndex, className = '', onChangeCallCon
               accountId={accountId}
               extrinsic={execTx}
               icon='sign-in-alt'
-              isDisabled={!isValid}
+              isDisabled={!isValid || !execTx}
               label={t('Execute')}
-              withSpinner
+              onStart={onClose}
             />
           )
         }
@@ -210,5 +233,9 @@ export default React.memo(styled(Call)`
 
   .clear-all {
     float: right;
+  }
+
+  .outcomes {
+    margin-top: 1rem;
   }
 `);

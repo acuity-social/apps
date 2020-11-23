@@ -1,26 +1,56 @@
 // Copyright 2017-2020 @polkadot/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { ContractCallOutcome } from '@polkadot/api-contract/types';
 import { ActionStatus } from '@polkadot/react-components/Status/types';
+import { BlockNumber, ContractInfo } from '@polkadot/types/interfaces';
+import { ContractLink } from './types';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import keyring from '@polkadot/ui-keyring';
-import { PromiseContract } from '@polkadot/api-contract';
+import { ContractPromise } from '@polkadot/api-contract';
 import { AddressInfo, AddressMini, Button, Forget } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
+import { useApi, useCall, useToggle } from '@polkadot/react-hooks';
+import { BlockToTime } from '@polkadot/react-query';
+import { Option } from '@polkadot/types';
+import { formatNumber, isFunction, isUndefined } from '@polkadot/util';
 
 import Messages from '../shared/Messages';
 import { useTranslation } from '../translate';
 
 interface Props {
   className?: string;
-  contract: PromiseContract;
-  onCall: (index?: number) => void;
+  contract: ContractPromise;
+  index: number;
+  links?: ContractLink[];
+  onCall: (contractIndex: number, messaeIndex: number, resultCb: (messageIndex: number, result?: ContractCallOutcome) => void) => void;
 }
 
-function Contract ({ className, contract, onCall }: Props): React.ReactElement<Props> | null {
+function transformInfo (optInfo: Option<ContractInfo>): ContractInfo | null {
+  return optInfo.unwrapOr(null);
+}
+
+function Contract ({ className, contract, index, links, onCall }: Props): React.ReactElement<Props> | null {
   const { t } = useTranslation();
+  const { api } = useApi();
+  const bestNumber = useCall<BlockNumber>(api.derive.chain.bestNumber);
+  const info = useCall<ContractInfo | null>(api.query.contracts.contractInfoOf, [contract.address], { transform: transformInfo });
+  const [evictAt, setEvictAt] = useState<BlockNumber | null>(null);
   const [isForgetOpen, toggleIsForgetOpen] = useToggle();
+
+  useEffect((): void => {
+    if (info && isFunction(api.rpc.contracts?.rentProjection)) {
+      api.rpc.contracts
+        .rentProjection(contract.address)
+        .then((value) => setEvictAt(value.unwrapOr(null)))
+        .catch(() => undefined);
+    }
+  }, [api, contract, info]);
+
+  const _onCall = useCallback(
+    (messageIndex: number, resultCb: (messageIndex: number, result?: ContractCallOutcome) => void) => onCall(index, messageIndex, resultCb),
+    [index, onCall]
+  );
 
   const _onForget = useCallback(
     (): void => {
@@ -59,13 +89,20 @@ function Contract ({ className, contract, onCall }: Props): React.ReactElement<P
       </td>
       <td className='all top'>
         <Messages
-          address={contract.address.toString()}
           contract={contract}
           contractAbi={contract.abi}
           isWatching
-          onSelect={onCall}
+          onSelect={_onCall}
           withMessages
         />
+      </td>
+      <td className='top'>
+        {links?.map(({ blockHash, blockNumber }, index): React.ReactNode => (
+          <a
+            href={`#/explorer/query/${blockHash}`}
+            key={`${index}-${blockNumber}`}
+          >#{blockNumber}</a>
+        ))}
       </td>
       <td className='number'>
         <AddressInfo
@@ -75,18 +112,30 @@ function Contract ({ className, contract, onCall }: Props): React.ReactElement<P
           withExtended={false}
         />
       </td>
+      <td className='start together'>
+        {!isUndefined(info) && (
+          info
+            ? info.type
+            : t<string>('Not on-chain')
+        )}
+      </td>
+      <td className='number together media--1100'>
+        {bestNumber && (
+          evictAt
+            ? (
+              <>
+                <BlockToTime blocks={evictAt.sub(bestNumber)} />
+                #{formatNumber(evictAt)}
+              </>
+            )
+            : t<string>('None')
+        )}
+      </td>
       <td className='button'>
         <Button
           icon='trash'
           onClick={toggleIsForgetOpen}
         />
-        {!contract.abi && (
-          <Button
-            icon='play'
-            label={t<string>('exec')}
-            onClick={onCall}
-          />
-        )}
       </td>
     </tr>
   );

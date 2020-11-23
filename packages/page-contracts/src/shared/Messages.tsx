@@ -2,32 +2,33 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AbiMessage, ContractCallOutcome } from '@polkadot/api-contract/types';
+import { ContractInfo } from '@polkadot/types/interfaces';
+import { ThemeProps } from '@polkadot/react-components/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Abi, PromiseContract } from '@polkadot/api-contract';
-import { Expander, IconLink } from '@polkadot/react-components';
+import { Abi, ContractPromise } from '@polkadot/api-contract';
+import { Expander } from '@polkadot/react-components';
 import { useApi, useCall } from '@polkadot/react-hooks';
+import { Option } from '@polkadot/types';
+import { formatNumber } from '@polkadot/util';
 
 import Message from './Message';
 import { useTranslation } from '../translate';
 
 export interface Props {
-  address?: string;
   className?: string;
-  contract?: PromiseContract;
+  contract?: ContractPromise;
   contractAbi: Abi;
   isLabelled?: boolean;
-  isRemovable?: boolean;
   isWatching?: boolean;
-  onRemove?: () => void;
-  onSelect?: (messageIndex: number) => void;
+  onSelect?: (messageIndex: number, resultCb: (messageIndex: number, result?: ContractCallOutcome) => void) => void;
   onSelectConstructor?: (constructorIndex: number) => void;
   withConstructors?: boolean;
   withMessages?: boolean;
+  withWasm?: boolean;
 }
 
-const NOOP = (): void => undefined;
 const READ_ADDR = '0x'.padEnd(66, '0');
 
 function sortMessages (messages: AbiMessage[]): [AbiMessage, number][] {
@@ -42,10 +43,10 @@ function sortMessages (messages: AbiMessage[]): [AbiMessage, number][] {
     );
 }
 
-function Messages ({ className = '', contract, contractAbi: { constructors, messages }, isLabelled, isRemovable, isWatching, onRemove = NOOP, onSelect, onSelectConstructor, withConstructors, withMessages } : Props): React.ReactElement<Props> {
+function Messages ({ className = '', contract, contractAbi: { constructors, messages, project: { source } }, isLabelled, isWatching, onSelect, onSelectConstructor, withConstructors, withMessages, withWasm } : Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const { api } = useApi();
-  const bestNumber = useCall(api.derive.chain.bestNumber);
+  const optInfo = useCall<Option<ContractInfo>>(contract && api.query.contracts.contractInfoOf, [contract?.address]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [lastResults, setLastResults] = useState<(ContractCallOutcome | undefined)[]>([]);
 
@@ -57,20 +58,32 @@ function Messages ({ className = '', contract, contractAbi: { constructors, mess
   );
 
   useEffect((): void => {
-    const maxWeight = api.consts.system.maximumBlockWeight.muln(64).divn(100);
-
-    bestNumber && contract && isUpdating && Promise
+    isUpdating && optInfo && contract && Promise
       .all(messages.map((m) =>
         m.isMutating || m.args.length !== 0
           ? Promise.resolve(undefined)
-          : contract.read(m, 0, maxWeight).send(READ_ADDR)
+          : contract.read(m, 0, -1).send(READ_ADDR).catch(() => undefined)
       ))
       .then(setLastResults)
       .catch(console.error);
-  }, [api, bestNumber, contract, isUpdating, isWatching, messages]);
+  }, [contract, isUpdating, isWatching, messages, optInfo]);
+
+  const _setMessageResult = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (messageIndex: number, result?: ContractCallOutcome): void => {
+      // ignore... for now
+      // setLastResults((all) => all.map((r, index) => index === messageIndex ? result : r));
+    },
+    []
+  );
+
+  const _onSelect = useCallback(
+    (index: number) => onSelect && onSelect(index, _setMessageResult),
+    [_setMessageResult, onSelect]
+  );
 
   return (
-    <div className={`ui--Messages ${className} ${isLabelled ? 'labelled' : ''}`}>
+    <div className={`ui--Messages ${className}${isLabelled ? ' isLabelled' : ''}`}>
       {withConstructors && (
         <Expander summary={t<string>('Constructors ({{count}})', { replace: { count: constructors.length } })}>
           {sortMessages(constructors).map(([message, index]) => (
@@ -94,41 +107,27 @@ function Messages ({ className = '', contract, contractAbi: { constructors, mess
               key={index}
               lastResult={lastResults[index]}
               message={message}
-              onSelect={onSelect}
+              onSelect={_onSelect}
             />
           ))}
         </Expander>
       )}
-      {isRemovable && (
-        <IconLink
-          className='remove-abi'
-          icon='remove'
-          label={t<string>('Remove ABI')}
-          onClick={onRemove}
-        />
+      {withWasm && source.wasm.length !== 0 && (
+        <div>{t<string>('{{size}} WASM bytes', { replace: { size: formatNumber(source.wasm.length) } })}</div>
       )}
     </div>
   );
 }
 
-export default React.memo(styled(Messages)`
+export default React.memo(styled(Messages)(({ theme }: ThemeProps) => `
   padding-bottom: 0.75rem !important;
 
-  .remove-abi {
-    float: right;
-    margin-top: 0.5rem;
-
-    &:hover, &:hover :not(i) {
-      text-decoration: underline;
-    }
-  }
-
-  &.labelled {
-    background: white;
+  &.isLabelled {
+    background: ${theme.bgInput};
     box-sizing: border-box;
     border: 1px solid rgba(34,36,38,.15);
     border-radius: .28571429rem;
     padding: 1rem 1rem 0.5rem;
     width: 100%;
   }
-`);
+`));

@@ -9,6 +9,8 @@ const emptyColor = '#99999';
 const chainAcuity = '#014C64';
 const chainCrab = '#7C30DD';
 const chainCrust = '#ff8812';
+const chainDarwinia = 'linear-gradient(-45deg, #FE3876 0%, #7C30DD 71%, #3A30DD 100%)';
+const chainHanonycash = '#0099CC';
 const chainKulupu = '#003366';
 const chainPhala = '#4dc56a';
 const chainPlasm = '#2096F3';
@@ -25,9 +27,12 @@ const chainWestend = '#da68a7';
 
 // based on node name
 // alphabetical
+const nodeBifrost = '#002cc3';
+const nodeCanvas = '#c77cff';
 const nodeCentrifuge = '#fcc367';
 const nodeEdgeware = '#0a95df';
 const nodeEquilibrium = '#1792ff';
+const nodeMoonbeam = '#53cbc9';
 const nodeNodle = '#1ab394';
 const nodeKilt = '#eb5b2a';
 const nodeStafi = '#00F3AB';
@@ -38,15 +43,18 @@ const nodeSubsocial = '#b9018c';
 const chainColors: Record<string, any> = [
   ['Acuity', chainAcuity],
   ['acala mandala pc1', chainRoccoAcala],
-  ['Crab', chainCrab],
+  ['Darwinia Crab', chainCrab],
   ['crust maxwell cc2', chainCrust],
+  ['darwinia cc1', chainDarwinia],
   ['darwinia parachain', chainRoccoDarwinia],
+  ['hanonycash', chainHanonycash],
   ['Kulupu', chainKulupu],
   ['Kusama', chainKusama],
   ['Kusama CC1', chainKusama],
   ['Kusama CC2', chainKusama],
   ['Kusama CC3', chainKusama],
   ['laminar turbulence pc1', chainRococoLaminar],
+  ['Moonbase Alpha', nodeMoonbeam],
   ['phala poc 2', chainPhala],
   ['Plasm', chainPlasm],
   ['Polkadot', chainPolkadot],
@@ -64,6 +72,8 @@ const chainColors: Record<string, any> = [
 // overrides based on the actual software node type (all '-' converted to ' ')
 // alphabetical
 const nodeColors: Record<string, any> = [
+  ['Bifrost Node', nodeBifrost],
+  ['Canvas Node', nodeCanvas],
   ['acuity.social', chainAcuity],
   ['centrifuge chain', nodeCentrifuge],
   ['Centrifuge Chain Node', nodeCentrifuge],

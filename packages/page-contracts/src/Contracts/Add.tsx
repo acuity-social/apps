@@ -4,7 +4,7 @@
 import { StringOrNull } from '@polkadot/react-components/types';
 import { ActionStatus } from '@polkadot/react-components/Status/types';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { AddressRow, Button, Input, Modal } from '@polkadot/react-components';
 import { useApi, useNonEmptyString } from '@polkadot/react-hooks';
 import keyring from '@polkadot/ui-keyring';
@@ -25,11 +25,6 @@ function Add ({ onClose }: Props): React.ReactElement {
   const [isAddressValid, setIsAddressValid] = useState(false);
   const [name, isNameValid, setName] = useNonEmptyString('New Contract');
   const { abi, contractAbi, errorText, isAbiError, isAbiSupplied, isAbiValid, onChangeAbi, onRemoveAbi } = useAbi([null, null], null, true);
-
-  const isValid = useMemo(
-    (): boolean => isAddressValid && isNameValid && isAbiValid,
-    [isAbiValid, isAddressValid, isNameValid]
-  );
 
   const _onAdd = useCallback(
     (): void => {
@@ -66,6 +61,8 @@ function Add ({ onClose }: Props): React.ReactElement {
     [abi, address, api, name, onClose]
   );
 
+  const isValid = isAddressValid && isNameValid && isAbiValid;
+
   return (
     <Modal header={t('Add an existing contract')}>
       <Modal.Content>
@@ -95,13 +92,11 @@ function Add ({ onClose }: Props): React.ReactElement {
           <ABI
             contractAbi={contractAbi}
             errorText={errorText}
-            isContract
-            isError={isAbiError}
+            isError={isAbiError || !isAbiValid}
             isSupplied={isAbiSupplied}
             isValid={isAbiValid}
             onChange={onChangeAbi}
             onRemove={onRemoveAbi}
-            withLabel
           />
         </AddressRow>
       </Modal.Content>
