@@ -7,5 +7,5 @@
 export default {
   Address: 'AccountId',
   LookupSource: 'AccountId',
-  RefCount: 'u8'
+  Schedule: 'ScheduleTo258'
 };
