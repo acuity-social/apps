@@ -1,9 +1,10 @@
-// Copyright 2017-2020 @polkadot/apps authors & contributors
+// Copyright 2017-2021 @polkadot/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { chainLogos, emptyLogo, namedLogos, nodeLogos } from '@polkadot/apps-config/ui/logos';
+
+import { chainLogos, emptyLogos, namedLogos, nodeLogos } from '@polkadot/apps-config';
 import { useApi } from '@polkadot/react-hooks';
 
 interface Props {
@@ -21,7 +22,7 @@ function ChainImg ({ className = '', logo, onClick }: Props): React.ReactElement
   const [isEmpty, img] = useMemo((): [boolean, string] => {
     const found: unknown = namedLogos[logo || ''] || chainLogos[sanitize(systemChain)] || nodeLogos[sanitize(systemName)];
 
-    return [!found || logo === 'empty', (found || emptyLogo) as string];
+    return [!found || logo === 'empty', (found || emptyLogos.empty) as string];
   }, [logo, systemChain, systemName]);
 
   return (

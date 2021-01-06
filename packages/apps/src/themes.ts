@@ -1,17 +1,17 @@
-// Copyright 2017-2020 @polkadot/apps authors & contributors
+// Copyright 2017-2021 @polkadot/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { ThemeDef } from '@polkadot/react-components/types';
+import type { ThemeDef } from '@polkadot/react-components/types';
 
-// Suggested '"Nunito Sans", sans-serif', however there are a couple of issues
-//   - alignment of identities are way off, parent + sub + unicode
-//   - additional download size
+// Fonts as found on https://newcss.net/
 const FONT = {
-  fontMono: 'monospace',
-  fontSans: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-  fontWeightLight: 300,
+  fontMono: '0.9em Consolas, monaco, "Ubuntu Mono", "Liberation Mono", "Courier New", Courier, monospace',
+  fontSans: '1em "-apple-system", BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+  fontWeightLight: 200,
   fontWeightNormal: 400
 };
+
+const MAX_WIDTH = 1750;
 
 export const darkTheme: ThemeDef = {
   ...FONT,
@@ -31,6 +31,8 @@ export const darkTheme: ThemeDef = {
   colorError: 'rgba(255, 0, 0, 0.85)',
   colorLabel: 'rgba(244, 242, 240, 0.45)',
   colorSummary: 'rgba(244, 242, 240, 0.75)',
+  contentHalfWidth: `${MAX_WIDTH / 2}px`,
+  contentMaxWidth: `${MAX_WIDTH}px`,
   theme: 'dark'
 };
 
@@ -52,5 +54,7 @@ export const lightTheme: ThemeDef = {
   colorError: 'rgba(139, 0, 0)',
   colorLabel: 'rgba(78, 78, 78, 0.66)',
   colorSummary: 'rgba(0, 0, 0, 0.6)',
+  contentHalfWidth: `${MAX_WIDTH / 2}px`,
+  contentMaxWidth: `${MAX_WIDTH}px`,
   theme: 'light'
 };

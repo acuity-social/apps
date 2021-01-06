@@ -1,14 +1,15 @@
-// Copyright 2017-2020 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2021 @polkadot/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Registration } from '@polkadot/types/interfaces';
+import type { Data, Option } from '@polkadot/types';
+import type { Registration } from '@polkadot/types/interfaces';
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+
 import { Input, InputBalance, Modal, Toggle, TxButton } from '@polkadot/react-components';
 import { getAddressMeta } from '@polkadot/react-components/util';
 import { useApi, useCall } from '@polkadot/react-hooks';
-import { Data, Option } from '@polkadot/types';
 import { u8aToString } from '@polkadot/util';
 
 import { useTranslation } from '../translate';
@@ -252,8 +253,7 @@ function IdentityMain ({ address, className = '', onClose }: Props): React.React
           isDisabled={!gotPreviousIdentity}
           label={t<string>('Clear Identity')}
           onStart={onClose}
-          params={[]}
-          tx='identity.clearIdentity'
+          tx={api.tx.identity.clearIdentity}
         />
         <TxButton
           accountId={address}
@@ -261,7 +261,7 @@ function IdentityMain ({ address, className = '', onClose }: Props): React.React
           label={t<string>('Set Identity')}
           onStart={onClose}
           params={[info]}
-          tx='identity.setIdentity'
+          tx={api.tx.identity.setIdentity}
         />
       </Modal.Actions>
     </Modal>

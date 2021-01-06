@@ -1,4 +1,4 @@
-// Copyright 2017-2020 @polkadot/apps-config authors & contributors
+// Copyright 2017-2021 @polkadot/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 export interface Option {
@@ -7,4 +7,12 @@ export interface Option {
   isHeader?: boolean;
   text: React.ReactNode;
   value: string | number;
+}
+
+export interface LinkOption extends Option {
+  dnslink?: string;
+  isChild?: boolean;
+  isDevelopment?: boolean;
+  linked?: LinkOption[];
+  textBy: string;
 }
