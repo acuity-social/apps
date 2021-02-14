@@ -13,7 +13,6 @@ import styled from 'styled-components';
 import { HelpOverlay } from '@polkadot/react-components';
 import Tabs from '@polkadot/react-components/Tabs';
 import { useAccounts, useApi, useAvailableSlashes, useCall, useFavorites, useOwnStashInfos } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
 
 import basicMd from './md/basic.md';
 import Summary from './Overview/Summary';
@@ -40,11 +39,11 @@ function StakingApp ({ basePath, className = '' }: Props): React.ReactElement<Pr
   const { pathname } = useLocation();
   const [withLedger, setWithLedger] = useState(false);
   const [favorites, toggleFavorite] = useFavorites(STORE_FAVS_BASE);
+  const stakingOverview = useCall<DeriveStakingOverview>(api.derive.staking.overview);
+  const isInElection = useCall<boolean>(api.query.staking?.eraElectionStatus, undefined, transformElection);
   const ownStashes = useOwnStashInfos();
   const slashes = useAvailableSlashes();
   const targets = useSortedTargets(favorites, withLedger);
-  const stakingOverview = useCall<DeriveStakingOverview>(api.derive.staking.overview);
-  const isInElection = useCall<boolean>(api.query.staking?.eraElectionStatus, undefined, transformElection);
 
   const hasQueries = useMemo(
     () => hasAccounts && !!(api.query.imOnline?.authoredBlocks) && !!(api.query.staking.activeEra),
@@ -71,12 +70,10 @@ function StakingApp ({ basePath, className = '' }: Props): React.ReactElement<Pr
       name: 'actions',
       text: t<string>('Account actions')
     },
-    isFunction(api.query.staking.activeEra)
-      ? {
-        name: 'payout',
-        text: t<string>('Payouts')
-      }
-      : null,
+    api.query.staking.activeEra && {
+      name: 'payout',
+      text: t<string>('Payouts')
+    },
     {
       alias: 'returns',
       name: 'targets',
@@ -205,6 +202,19 @@ export default React.memo(styled(StakingApp)(({ theme }: ThemeProps) => `
   .ui--Expander.stakeOver {
     .ui--Expander-summary {
       color: ${theme.colorError};
+
+    ${theme.theme === 'dark'
+    ? `
+        font-weight: bold;
+          .ui--FormatBalance-value {
+
+            > .ui--FormatBalance-postfix {
+              opacity: 1;
+            }
+          }
+    `
+    : ''};
+
     }
   }
 `));

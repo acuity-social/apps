@@ -7,11 +7,14 @@
 // anything for a specific chain, most would probably fit into the node category (but allow for chain-specific)
 // alphabetical
 import chainDusty from './chains/dusty.png';
+import chainHydrate from './chains/hydrate.png';
 import chainKusama from './chains/kusama-128.gif';
+import chainPolkaBTC from './chains/polkabtc.png';
 import chainRococo from './chains/rococo.svg';
 import chainRococoTick from './chains/rococo-tick.svg';
 import chainRococoTrack from './chains/rococo-track.svg';
 import chainRococoTrick from './chains/rococo-trick.svg';
+import chainSnakenet from './chains/snakenet.svg';
 import extensionPolkadotJs from './extensions/polkadot-js.svg';
 import externalCommonwealth from './external/commonwealth.png';
 import externalPolkascan from './external/polkascan.png';
@@ -20,12 +23,17 @@ import externalPolkastats from './external/polkastats.png';
 import externalSubscan from './external/subscan.svg';
 import nodeAcala from './nodes/acala-circle.svg';
 import nodeAcuity from './nodes/acuity.svg';
+import nodeAres from './nodes/ares.svg';
 import nodeBifrost from './nodes/bifrost.svg';
+import nodeBitCountry from './nodes/bitcountry.svg';
 import nodeCanvas from './nodes/canvas-2.png';
 import nodeCentrifuge from './nodes/centrifuge.png';
+import nodeChainx from './nodes/chainx.svg';
+import nodeClover from './nodes/clover.svg';
 import nodeCrab from './nodes/crab.svg';
 import nodeCrust from './nodes/crust.svg';
 import nodeDarwinia from './nodes/darwinia.png';
+import nodeDataHighway from './nodes/datahighway.png';
 import nodeDockMainnet from './nodes/dock-mainnet.png';
 import nodeDockTestnet from './nodes/dock-testnet.png';
 import nodeEdgeware from './nodes/edgeware-circle.svg';
@@ -33,6 +41,9 @@ import nodeEncointerNotee from './nodes/encointer-notee.svg';
 import nodeEncointerTeeproxy from './nodes/encointer-teeproxy.svg';
 import nodeEquilibrium from './nodes/equilibrium.svg';
 import nodeHanonycash from './nodes/hanonycash.svg';
+import nodeIdavoll from './nodes/idavoll.png';
+import nodeIntegritee from './nodes/integritee.svg';
+import nodeJupiter from './nodes/jupiter.svg';
 import nodeKilt from './nodes/kilt.svg';
 import nodeKulupu from './nodes/kulupu.svg';
 import nodeLaminar from './nodes/laminar-circle.svg';
@@ -42,13 +53,18 @@ import nodeNodle from './nodes/nodle.svg';
 import nodePhala from './nodes/phala.svg';
 import nodePlasm from './nodes/plasm.png';
 import nodePolkaBTC from './nodes/polkabtc.png';
+import nodePolkadex from './nodes/polkadex.svg';
 import nodePolkadot from './nodes/polkadot-circle.svg';
 import nodePolkadotJs from './nodes/polkadot-js.svg';
 import nodeRobonomics from './nodes/robonomics.svg';
 import nodeSora from './nodes/sora-substrate.svg';
 import nodeStafi from './nodes/stafi.png';
+import nodeSubDAO from './nodes/subdao.png';
 import nodeSubsocial from './nodes/subsocial.svg';
 import nodeSubstrate from './nodes/substrate-hexagon.svg';
+import nodeTernoa from './nodes/ternoa.svg';
+import nodeUniarts from './nodes/uniarts.png';
+import nodeZenlink from './nodes/zenlink.svg';
 import nodeZero from './nodes/zero.svg';
 // last-resort fallback, just something empty
 import emptyLogo from './empty.svg';
@@ -56,20 +72,35 @@ import emptyLogo from './empty.svg';
 // Alphabetical overrides based on the actual matched chain name
 // NOTE: This is as retrieved via system.chain RPC
 export const chainLogos: Record<string, unknown> = [
+  ['Ares PC1', nodeAres],
+  ['Crust PC1', nodeCrust],
+  ['ChainX', nodeChainx],
   ['darwinia crab', nodeCrab],
   ['Acuity', nodeAcuity],
+  ['Darwinia PC2', nodeDarwinia],
+  ['DataHighway', nodeDataHighway],
   ['Dusty', chainDusty],
   ['Galois', nodeMath],
+  ['HydraDX Hydrate', chainHydrate],
+  ['HydraDX Snakenet', chainSnakenet],
+  ['Encointer PC1', nodeEncointerNotee],
+  ['Idavoll', nodeIdavoll],
+  ['IntegriTEE PC1', nodeIntegritee],
+  ['KILT PC1', nodeKilt],
   ['Kusama', chainKusama], // new name after CC3
   ['Kusama CC1', chainKusama],
   ['Kusama CC2', chainKusama],
   ['Kusama CC3', chainKusama],
   ['Moonbase Alpha', moonbeam],
   ['PolkaBTC', nodePolkaBTC],
+  ['PolkaBTC Staging', nodePolkaBTC],
+  ['Polkadex Testnet', nodePolkadex],
+  ['Phala PC1', nodePhala],
   ['Rococo', chainRococo],
   ['Tick', chainRococoTick],
   ['Track', chainRococoTrack],
-  ['Trick', chainRococoTrick]
+  ['Trick', chainRococoTrick],
+  ['Uniarts', nodeUniarts]
 ].reduce((logos, [chain, logo]): Record<string, unknown> => ({
   ...logos,
   [(chain as string).toLowerCase()]: logo
@@ -82,13 +113,22 @@ export const nodeLogos: Record<string, unknown> = [
   ['airalab-robonomics', nodeRobonomics],
   ['Bifrost Node', nodeBifrost],
   ['Bifrost', nodeBifrost],
+  ['BitCountry Node', nodeBitCountry],
+  ['Bit.Country', nodeBitCountry],
   ['Canvas Node', nodeCanvas],
   ['centrifuge chain', nodeCentrifuge],
   ['Centrifuge Chain Node', nodeCentrifuge],
+  ['ChainX Node', nodeChainx],
+  ['Clover Node', nodeClover],
   ['darwinia crab', nodeCrab],
   ['crust', nodeCrust],
+  ['Crust Collator', nodeCrust],
   ['darwinia', nodeDarwinia],
   ['darwinia parachain', nodeDarwinia],
+  ['Darwinia Runtime Module Library', nodeDarwinia],
+  ['DataHighway', nodeDataHighway],
+  ['DataHighway Node', nodeDataHighway],
+  ['DataHighway Parachain Collator', nodeDataHighway],
   ['Dock Full Node', nodeDockMainnet],
   ['Edgeware Node', nodeEdgeware],
   ['Encointer Node', nodeEncointerNotee],
@@ -96,14 +136,21 @@ export const nodeLogos: Record<string, unknown> = [
   ['Encointer Node TEE proxy', nodeEncointerTeeproxy],
   ['Galois', nodeMath],
   ['hanonycash', nodeHanonycash],
+  ['Idavoll Node', nodeIdavoll],
+  ['Jupiter Node', nodeJupiter],
   ['KILT Node', nodeKilt],
+  ['KILT Collator', nodeKilt],
   ['kulupu', nodeKulupu],
+  ['Laminar Node', nodeLaminar],
   ['node-template', nodeSubstrate],
   ['Nodle Chain Node', nodeNodle],
+  ['Polkadex Node', nodePolkadex],
   ['parity-polkadot', nodePolkadot],
   ['Plasm', nodePlasm],
   ['Plasm Node', nodePlasm],
+  ['Plasm Parachain Collator', nodePlasm],
   ['phala-substrate-node', nodePhala],
+  ['Phala Collator', nodePhala],
   ['polkadot-js', nodePolkadotJs],
   ['SORA-staging Node', nodeSora],
   ['Stafi Node', nodeStafi],
@@ -112,7 +159,12 @@ export const nodeLogos: Record<string, unknown> = [
   ['substrate-node', nodeSubstrate],
   ['Equilibrium Node', nodeEquilibrium],
   ['Equilibrium', nodeEquilibrium],
-  ['SUBZΞRO', nodeZero]
+  ['SUBZΞRO', nodeZero],
+  ['Ternoa Node', nodeTernoa],
+  ['Zenlink', nodeZenlink],
+  ['Zenlink Collator', nodeZenlink],
+  ['SubDAO Collator', nodeSubDAO],
+  ['Uniarts', nodeUniarts]
 ].reduce((logos, [node, logo]): Record<string, unknown> => ({
   ...logos,
   [(node as string).toLowerCase().replace(/-/g, ' ')]: logo
@@ -127,11 +179,15 @@ export const namedLogos: Record<string, unknown> = {
   acuity: nodeAcuity,
   alexander: nodePolkadot,
   bifrost: nodeBifrost,
+  bitcountry: nodeBitCountry,
   canvas: nodeCanvas,
   centrifuge: nodeCentrifuge,
+  chainx: nodeChainx,
+  clover: nodeClover,
   crab: nodeCrab,
   crust: nodeCrust,
   darwinia: nodeDarwinia,
+  datahighway: nodeDataHighway,
   'dock-mainnet': nodeDockMainnet,
   'dock-testnet': nodeDockTestnet,
   dusty: chainDusty,
@@ -142,6 +198,8 @@ export const namedLogos: Record<string, unknown> = {
   equilibrium: nodeEquilibrium,
   galois: nodeMath,
   hanonycash: nodeHanonycash,
+  idavoll: nodeIdavoll,
+  jupiter: nodeJupiter,
   kilt: nodeKilt,
   kulupu: nodeKulupu,
   kusama: chainKusama,
@@ -151,20 +209,37 @@ export const namedLogos: Record<string, unknown> = {
   phala: nodePhala,
   plasm: nodePlasm,
   polkabtc: nodePolkaBTC,
+  polkadex: nodePolkadex,
   polkadot: nodePolkadot,
   rococo: chainRococo,
   rococoAcala: nodeAcala,
+  rococoAres: nodeAres,
+  rococoBifrost: nodeBifrost,
+  rococoClover: nodeClover,
+  rococoCrust: nodeCrust,
   rococoDarwinia: nodeDarwinia,
+  rococoDataHighway: nodeDataHighway,
+  rococoEncointer: nodeEncointerNotee,
+  rococoHydrate: chainHydrate,
+  rococoIntegritee: nodeIntegritee,
+  rococoKilt: nodeKilt,
   rococoLaminar: nodeLaminar,
+  rococoPhala: nodePhala,
   rococoPlasm: nodePlasm,
+  rococoPolkabtc: chainPolkaBTC,
   rococoRobonomics: nodeRobonomics,
+  rococoSubDAO: nodeSubDAO,
   rococoTick: chainRococoTick,
   rococoTrack: chainRococoTrack,
   rococoTrick: chainRococoTrick,
+  rococoZenlink: nodeZenlink,
+  snakenet: chainSnakenet,
   'sora-substrate': nodeSora,
   stafi: nodeStafi,
   subsocial: nodeSubsocial,
   substrate: nodeSubstrate,
+  'ternoa-chaos': nodeTernoa,
+  uniarts: nodeUniarts,
   westend: nodePolkadot,
   zero: nodeZero
 };
