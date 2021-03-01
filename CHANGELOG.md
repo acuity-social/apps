@@ -1,5 +1,69 @@
 # CHANGELOG
 
+## 0.81.1 Feb 22, 2021
+
+Contributed:
+
+- Add Unique network (Thanks to https://github.com/gregzaitsev)
+- Add Sgc testnet (Thanks to https://github.com/Zombieliu)
+- Add all known Moonbeam spec names (Thanks to https://github.com/joelamouche)
+- Adjust Moonbeam types for v6 upgrade (Thanks to https://github.com/joelamouche)
+- Adjust DOTmog logo (Thanks to https://github.com/darkfriend77)
+- Add Vedran provider for Westend (Thanks to https://github.com/mpetrunic)
+- Fix typo in accounts overlays (Thanks to https://github.com/marksthespots)
+- Fix typo in JavaScript app (Thanks to https://github.com/shaunxw)
+- Update types for Darwinia Crab (Thanks to https://github.com/WoeOm)
+- Update provider for Darwinia (Thanks to https://github.com/WoeOm)
+- Updata paraId for Bit.Country (Thanks to https://github.com/justinphamnz)
+
+Changes:
+
+- Display validators for all connected parachains
+- Adjust included block parachain calculation
+- Align bounties display with UI styling
+- Rework calculation for min-available balance warning in signer
+- Adjust slashed validators display (check against known eras)
+- Cleanup JS console app examples for system.account usage
+- Adjust JS console app sending example (incl. Signer fix)
+- Display error on contracts deploy pre-3.0 Substrate with no utility.batch
+- Adjust table displays with bottom-borders
+- Adjust Governance proxy checks to include tips
+- Reworks digits formatting for explorer blocks
+
+
+## 0.80.1 Feb 15, 2021
+
+Contributed:
+
+- Add Trustbase networks (thanks to https://github.com/jizer)
+- Add DOTMog network (Thanks to https://github.com/darkfriend77)
+- Add Bit.Country PC1 (Thanks to https://github.com/justinphamnz)
+- Add Litentry parachain (Thanks to https://github.com/chenzongxiong)
+- Update Plasm network types (Thanks to https://github.com/akru)
+- Update Nodle network types (Thanks to https://github.com/ETeissonniere)
+- Update Sora library version (Thanks to https://github.com/stefashkaa)
+- Adjust Moonbeam themes (Thanks to https://github.com/joelamouche)
+- Bounties list display enhancements (Thanks to https://github.com/ekowalsk)
+
+Changes:
+
+- Adjust explorer block display to not show unsigned as immortal (no era info)
+- Protect against overflows in staking returns calculations
+- Add warning on none bonded to not send to validators, but rather bond
+- Adjust staking min-bonded overall calculations
+- Cleanup accounts loading display (no initial flash)
+- Add Register action for parachains (non-proposal mode)
+- Adjust council display to cater for new Substrate version
+- Adjust bounties pages to align better with UI look and feel
+- Start of parachain auctions interface (skeleton-only)
+- Adjust `useFavorites` to not re-read storage on re-renders
+- Adjust `useLoading` hooks to only fire once
+- Convert all spec types to use bundles (single adjustment)
+- Consistent sorting for all RPC nodes (live & testing)
+- Update Rococo genesis after reset
+- Split test parachains into own section on network selector
+
+
 ## 0.79.1 Feb 8, 2021
 
 Contributed:

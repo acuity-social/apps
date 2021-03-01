@@ -17,7 +17,6 @@ import { expandEndpoints } from './util';
 export function createProduction (t: TFunction): LinkOption[] {
   return expandEndpoints(t, [
     {
-      dnslink: 'acuity',
       info: 'acuity',
       text: t('acuity.social', 'Acuity', { ns: 'apps-config' }),
       providers: {
@@ -58,7 +57,7 @@ export function createProduction (t: TFunction): LinkOption[] {
       info: 'crab',
       text: t('rpc.crab', 'Darwinia Crab', { ns: 'apps-config' }),
       providers: {
-        'Darwinia Network': 'wss://crab.darwinia.network'
+        'Darwinia Network': 'wss://crab-rpc.darwinia.network'
       }
     },
     {
@@ -73,7 +72,7 @@ export function createProduction (t: TFunction): LinkOption[] {
       info: 'darwinia',
       text: t('rpc.darwinia', 'Darwinia', { ns: 'apps-config' }),
       providers: {
-        'Darwinia Network': 'wss://cc1.darwinia.network',
+        'Darwinia Network': 'wss://rpc.darwinia.network',
         'Patract Elara': 'wss://darwinia.elara.patract.io'
       }
     },
@@ -129,7 +128,7 @@ export function createProduction (t: TFunction): LinkOption[] {
       info: 'nodle',
       text: t('rpc.nodle-main', 'Nodle', { ns: 'apps-config' }),
       providers: {
-        Nodle: 'wss://main1.nodleprotocol.io',
+        Nodle: 'wss://main3.nodleprotocol.io',
         'Patract Elara': 'wss://nodle.elara.patract.io'
       }
     },
