@@ -77,9 +77,9 @@ export function createTesting (t: TFunction): LinkOption[] {
     {
       info: 'datahighway',
       isDisabled: true,
-      text: t('rpc.datahighway.harbour', 'Harbour', { ns: 'apps-config' }),
+      text: t('rpc.datahighway.spreehafen', 'Spreehafen', { ns: 'apps-config' }),
       providers: {
-        MXC: 'wss://testnet-harbour.datahighway.com'
+        MXC: 'wss://spreehafen.datahighway.com'
       }
     },
     {
@@ -158,7 +158,7 @@ export function createTesting (t: TFunction): LinkOption[] {
       info: 'acala',
       text: t('rpc.mandala', 'Mandala', { ns: 'apps-config' }),
       providers: {
-        Acala: 'wss://node-6714447553211260928.rz.onfinality.io/ws',
+        Acala: 'wss://acala-mandala.api.onfinality.io/public-ws',
         'Patract Elara': 'wss://mandala.elara.patract.io'
       }
     },
@@ -271,10 +271,31 @@ export function createTesting (t: TFunction): LinkOption[] {
       }
     },
     {
+      info: 'zeitgeist',
+      text: t('rpc.zeitgeist', 'Zeitgeist Battery Park', { ns: 'apps-config' }),
+      providers: {
+        Zeitgeist: 'wss://bp-rpc.zeitgeist.pm'
+      }
+    },
+    {
       info: 'zero',
       text: t('rpc.zero', 'Zero', { ns: 'apps-config' }),
       providers: {
-        ZERO: 'wss://alphaville-0.zero.io'
+        ZERO: 'wss://alphaville.zero.io'
+      }
+    },
+    {
+      info: 'mybank',
+      text: t('rpc.mybank', 'mybank.network', { ns: 'apps-config' }),
+      providers: {
+        MYBANK: 'wss://app.mybank.network/substrate'
+      }
+    },
+    {
+      info: 'unitv',
+      text: t('rpc.unitv', 'Unit Network', { ns: 'apps-config' }),
+      providers: {
+        'Unit Network': 'wss://unitventures.io/'
       }
     }
   ]);
