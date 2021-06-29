@@ -19,6 +19,15 @@ export function createWsEndpoints (t: TFunction, firstOnly?: boolean): LinkOptio
       isDisabled: false,
       isHeader: true,
       isSpaced: true,
+      text: t('rpc.header.live', 'Live networks', { ns: 'apps-config' }),
+      textBy: '',
+      value: ''
+    },
+    ...createProduction(t, firstOnly),
+    {
+      isDisabled: false,
+      isHeader: true,
+      isSpaced: true,
       text: t('rpc.header.polkadot.relay', 'Polkadot & parachains', { ns: 'apps-config' }),
       textBy: '',
       value: ''
@@ -49,15 +58,6 @@ export function createWsEndpoints (t: TFunction, firstOnly?: boolean): LinkOptio
       value: ''
     },
     ...createRococoRelay(t, firstOnly),
-    {
-      isDisabled: false,
-      isHeader: true,
-      isSpaced: true,
-      text: t('rpc.header.live', 'Live networks', { ns: 'apps-config' }),
-      textBy: '',
-      value: ''
-    },
-    ...createProduction(t, firstOnly),
     {
       isDisabled: false,
       isHeader: true,
